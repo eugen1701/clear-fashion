@@ -1,3 +1,4 @@
+
 // Invoking strict mode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#invoking_strict_mode
 'use strict';
 
@@ -15,7 +16,7 @@ const MY_FAVORITE_BRANDS = [{
 }]
 
 console.table(MY_FAVORITE_BRANDS);
-//console.log(MY_FAVORITE_BRANDS[0]);
+console.log(MY_FAVORITE_BRANDS[0]);
 
 
 
@@ -34,9 +35,19 @@ console.table(MY_FAVORITE_BRANDS);
 // I can find on these e-shops
 // 2. Log the variable
 
-const cheapTshirt = 'https://hopaal.com/collections/t-shirts-homme/products/classique-forest-t-shirt-homme';
-console.log(cheapTshirt);
+const tshirts = marketplace.filter(
+    (x) => x.link.toLowerCase().includes("t-shirt")
+);
 
+if (tshirts.length == 0)
+    console.warn("No t-shirst in marketplace");
+else
+{
+    const cheapest = tshirts.reduce(
+        (prev, curr) => prev.price < curr.price ? prev : curr
+    );
+    console.log(cheapest);
+}
 
 /**
  * 👕
@@ -51,95 +62,72 @@ console.log(cheapTshirt);
 // 1. Create a variable and assign it the number of products
 // 2. Log the variable
 
-let no_products = marketplace.length;
-console.log(no_products); //the number is 140
+const nb_products_market = marketplace.length;
+console.log(nb_products_market);
+
 
 // 🎯 TODO: Brands name
 // 1. Create a variable and assign it the list of brands name only
 // 2. Log the variable
 // 3. Log how many brands we have
 
-var brandList = [];
-
-for (var i in marketplace){
-  brandList.push(marketplace[i].brand)
-}
-
-var unique_brandList = [];
-
-while(brandList.length !=0 ){
-  let brand = brandList.pop();
-  let i = 0;
-  while(i<unique_brandList.length && brand!=unique_brandList[i]){
-    i++;
-  }
-  if(i === unique_brandList.length){
-    unique_brandList.push(brand);
-  }
-
-}
-console.log(unique_brandList);//(5) ["dedicated", "loom", "1083", "adresse", "aatise"]
-
-//
-//
-// //another version
-//
-// const brandList = marketplace.map(product => product.brand);
-// console.log(new Set(brandList))
-// let unique = [...new Set(brandList)]
-// console.log(unique)
+const get_brands = (products) => [...new Set(products.map( ({ brand }) => brand))];
+const brands = get_brands(marketplace);
+console.log(brands);
 
 // 🎯 TODO: Sort by price
 // 1. Create a function to sort the marketplace products by price
 // 2. Create a variable and assign it the list of products by price from lowest to highest
 // 3. Log the variable
 
-function sortByPrice(product1, product2){
-  return product1.price-product2.price
-}
-var productsSortedByPrice = marketplace.sort(sortByPrice);
-console.log(productsSortedByPrice);
+const sort_by = (order = 1) => (get_attr) => (products) => [...products].sort( // copy array
+    (first, second) => {
+        const first_attr = get_attr(first);
+        const second_attr = get_attr(second);
+        if (first_attr < second_attr) return -1 * order;
+        if (first_attr > second_attr) return 1 * order;
+        return 0;
+    }
+);
+
+const sort_by_ascending = sort_by();
+const sort_by_descending = sort_by(-1);
+
+const sort_by_ascending_price = sort_by_ascending(x => x.price);
+
+const products_sorted_ascending_price = sort_by_ascending_price(marketplace);
+console.log(products_sorted_ascending_price);
 
 // 🎯 TODO: Sort by date
 // 1. Create a function to sort the marketplace objects by products date
 // 2. Create a variable and assign it the list of products by date from recent to old
 // 3. Log the variable
 
-function sortByDate(p1,p2){
-  var dateP1=new Date(p1.date);
-  var dateP2=new Date(p2.date);
-  return dateP1-dateP2;
-}
+const sort_by_ascending_date = sort_by_ascending(x => new Date(x.date))
 
-var productsSortedByDate = marketplace.sort(sortByDate);
-console.log(productsSortedByDate);
-
+const products_sorted_ascending_date = sort_by_ascending_date(marketplace);
+console.log(products_sorted_ascending_date);
 
 // 🎯 TODO: Filter a specific price range
 // 1. Filter the list of products between 50€ and 100€
 // 2. Log the list
-var productsBetween50and100 = []
-for(var i in marketplace){
-  if(marketplace[i].price > 50 && marketplace[i].price < 100){
-    productsBetween50and100.push(marketplace[i])
-  }
-}
-console.log(productsBetween50and100);//48 products
+
+const filter_in_range = (get_attr) => (lower) => (upper)  => 
+    (products) => products.filter(x => lower <= get_attr(x) && get_attr(x) <= upper);
+
+const filter_price_range = filter_in_range(x => x.price);
+const products_price_50_100 = filter_price_range(50)(100)(marketplace);
+console.log(products_price_50_100);
 
 // 🎯 TODO: Average Basket
 // 1. Determine the average basket of the marketplace
 // 2. Log the average
 
-let avgBasket = 0;
-let totalBasket = 0;
-for(var i in marketplace){
-  totalBasket+=marketplace[i].price;
-}
+const average = (arr) => (arr.length == 0) ? 0 : arr.reduce(
+    (first, second) => first + second, 0) / arr.length;
 
-avgBasket = totalBasket/marketplace.length;
-console.log(avgBasket);
-
-
+const average_basket = average(marketplace.map(x => x.price));
+console.log(average_basket);
 
 /**
  * 🏎
@@ -161,69 +149,48 @@ console.log(avgBasket);
 //   'brand-name-n': [{...}, {...}, ..., {...}],
 // };
 //
-
-//practicly we have to do a dictionary
-
-let brands = {}
-for(var i in unique_brandList){
-  brands[unique_brandList[i]] = []
-}
-for(var i in marketplace){
-  let brand = marketplace[i].brand;
-  let obj = {};
-  for(var attr in marketplace[i]){
-    if(attr != 'brand'){
-      if(marketplace[i].hasOwnProperty(attr)){
-        obj[attr] = marketplace[i][attr];
-      }
-    }
-
-  }
-
-  brands[brand].push(obj);
-}
-
 // 2. Log the variable
-
-console.log(brands);
-
-
 // 3. Log the number of products by brands
 
-for(var i in unique_brandList){
-  var stringToLog = unique_brandList[i]+' has the number of items equal to : '+ brands[unique_brandList[i]].length.toString();
-  console.log(stringToLog);
-}
+const group_by = (get_attr) => (arr) => arr.reduce((groups, item) =>
+    {
+        const group = (groups[get_attr(item)] || []);
+        group.push(item);
+        groups[get_attr(item)] = group;
+        return groups;
+    }, {});
 
+const group_by_brand = group_by(x => x.brand);
+
+const products_grouped_by_brand = group_by_brand(marketplace);
+console.log(products_grouped_by_brand);
 
 // 🎯 TODO: Sort by price for each brand
 // 1. For each brand, sort the products by price, from highest to lowest
 // 2. Log the sort
-for(var i in unique_brandList){
-  brands[unique_brandList[i]].sort(sortByPrice);
+
+const map_each_attribute = (mapping) => (object) =>
+{
+    for (const attr in object)
+    {
+        object[attr] = mapping(object[attr]);
+    }
+    return object;
 }
-for(var i in unique_brandList){
-  console.log('The products in increasing order by price and by store '+unique_brandList[i]+' are: ');
-  for(var j in brands[unique_brandList[i]]){
-    console.log(brands[unique_brandList[i]][j]);
-  }
-}
+
+const sort_ascending_price_attr = map_each_attribute(sort_by_ascending_price);
+
+const grouped_by_brand_sorted_ascending_price = sort_ascending_price_attr(group_by_brand(marketplace));
+console.log(grouped_by_brand_sorted_ascending_price)
+
 
 // 🎯 TODO: Sort by date for each brand
 // 1. For each brand, sort the products by date, from old to recent
 // 2. Log the sort
 
-for(var i in unique_brandList){
-  brands[unique_brandList[i]].sort(sortByDate);
-}
-for(var i in unique_brandList){
-  console.log('The products in increasing order by date and by store '+unique_brandList[i]+' are: ');
-  for(var j in brands[unique_brandList[i]]){
-    console.log(brands[unique_brandList[i]][j]);
-  }
-}
-
-
+const sort_ascending_date_attr = map_each_attribute(sort_by_ascending_date);
+const grouped_by_brand_sorted_ascending_date = sort_ascending_date_attr(group_by_brand(marketplace));
+console.log(grouped_by_brand_sorted_ascending_date);
 
 /**
  * 💶
@@ -236,9 +203,17 @@ for(var i in unique_brandList){
 // 1. Compute the p90 price value of each brand
 // The p90 value (90th percentile) is the lower value expected to be exceeded in 90% of the products
 
+const get_precentile = (get_attr) => (percentile) => (arr) =>
+{
+    const sorted = sort_by_ascending(get_attr)(arr);
+    const index = Math.min(Math.ceil(percentile / 100 * arr.length), arr.length - 1);
+    return get_attr(sorted[index]);
+};
 
-//I don't het what is p90
-
+const get_price_percentile = get_precentile(x => x.price);
+const get_price_90_percentile = get_price_percentile(10);
+const price_90_percentile = get_price_90_percentile(marketplace);
+console.log(price_90_percentile);
 
 /**
  * 🧥
@@ -312,58 +287,43 @@ const COTELE_PARIS = [
 // // 1. Log if we have new products only (true or false)
 // // A new product is a product `released` less than 2 weeks.
 
-function checkNew(product){
-  let numWeeks = 2;
-  const twoWeeksAgo = new Date();
-  twoWeeksAgo.setDate(twoWeeksAgo.getDate()-(numWeeks*7));//we get the day of 2 weeks ago
-  let productDate = new Date(product.released);
-  if(productDate < twoWeeksAgo){
-    return false;
-  }
-  return true;
-}
-let everyNew = true;
-for(var i in COTELE_PARIS){
-  everyNew = checkNew(COTELE_PARIS[i]);
-}
+const filter_release_range = filter_in_range(x => new Date(x.released));
 
-console.log(everyNew);
+const filter_release_2_weeks = filter_release_range(new Date(+new Date - 14*24*60*60*1000))(Date.now());
+
+const cotele_new_release = filter_release_2_weeks(COTELE_PARIS);
+console.log(cotele_new_release);
 
 // 🎯 TODO: Reasonable price
 // // 1. Log if coteleparis is a reasonable price shop (true or false)
 // // A reasonable price if all the products are less than 100€
-var resonable = true;
-for(var i in COTELE_PARIS){
-  if(COTELE_PARIS[i].price >100){
-    resonable = false;
-  }
-}
-console.log('Is coteleparis a resonable store? Ans:'+resonable.toString());
+
+const all_verify = (get_attr) => (condition) => (array) => array.every(x => condition(get_attr(x)));
+
+const all_price_below_100 = all_verify(x => x.price)(x => x < 100);
+
+console.log(all_price_below_100(COTELE_PARIS));
+
 
 // 🎯 TODO: Find a specific product
 // 1. Find the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the product
-var product;
-for(var i in COTELE_PARIS){
-  if(COTELE_PARIS[i].uuid === 'b56c6d88-749a-5b4c-b571-e5b5c6483131'){
-    product = COTELE_PARIS[i];
-  }
-}
-console.log(product);
+
+const find_element_condition = (get_attr) => (condition) => (array) => array.find(x => condition(get_attr(x)));
+
+const find_product_on_uuid = find_element_condition(x => x.uuid);
+
+console.log(find_product_on_uuid(x => x == `b56c6d88-749a-5b4c-b571-e5b5c6483131`)(COTELE_PARIS)); 
 
 // 🎯 TODO: Delete a specific product
 // 1. Delete the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the new list of product
-var i = 0;
-while(i<COTELE_PARIS.length){
-  if(COTELE_PARIS[i].uuid === 'b56c6d88-749a-5b4c-b571-e5b5c6483131'){
-    COTELE_PARIS.pop(COTELE_PARIS[i]);
-    }
-  
-  i++;
-}
 
-console.log(COTELE_PARIS);
+const remove_el_on_condition = (get_attr) => (condition) => (array) => array.filter(x => !condition(get_attr(x)));
+
+const remove_product_on_uuid = (uuid) => remove_el_on_condition(x => x.uuid)(x => x === uuid);
+
+console.log(remove_product_on_uuid(`b56c6d88-749a-5b4c-b571-e5b5c6483131`)(COTELE_PARIS));
 
 // 🎯 TODO: Save the favorite product
 let blueJacket = {
@@ -379,9 +339,12 @@ jacket.favorite = true;
 
 // 1. Log `blueJacket` and `jacket` variables
 // 2. What do you notice?
+
 console.log(blueJacket);
 console.log(jacket);
-//we notice that both of the have property "favorite: true" even if we seted the property just for one of them
+
+// I notice that they were both refering to the same object in memory
+
 blueJacket = {
   'link': 'https://coteleparis.com/collections/tous-les-produits-cotele/products/la-veste-bleu-roi',
   'price': 110,
@@ -389,12 +352,10 @@ blueJacket = {
 };
 
 // 3. Update `jacket` property with `favorite` to true WITHOUT changing blueJacket properties
-jacket = {};
-for(var attr in blueJacket){
-  jacket[attr]=blueJacket[attr];
-}
+
+jacket = {...blueJacket}
 jacket.favorite=true;
-console.log("After changing just the jacket")
+
 console.log(blueJacket);
 console.log(jacket);
 
@@ -408,17 +369,16 @@ console.log(jacket);
 // 🎯 TODO: Save in localStorage
 // 1. Save MY_FAVORITE_BRANDS in the localStorage
 // 2. log the localStorage
-var myStorage = window.localStorage;
-var textFile = null;
-window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-window.requestFileSystem(window.PERSISTENT, 1024, function(fs) {
-    fs.root.getFile('mystorage.txt', {create: true, exclusive: true}, function(file) {
-        file.createWriter(function(writer) {
-            var blob = new Blob(MY_FAVORITE_BRANDS, {type: 'text/plain'});
-            writer.write(blob);
-        });
-    });
-}, function() {
-    console.log("Could not access file system");
-});
-console.log(window.localStorage);
+
+const localStorage = {'fav_brands': MY_FAVORITE_BRANDS};
+console.log(localStorage);
+
+// EXTRA FUNCTIONS
+
+const filter_on = (get_attr) => (condition) => (array) => array.filter(x => condition(get_attr(x)));
+
+const filter_on_brand = filter_on(x => x.brand);
+
+// Error if empty array
+const get_min = (get_attr) => (array) => sort_by_ascending(get_attr)(array)[0];
+const get_max = (get_attr) => (array) => sort_by_descending(get_attr)(array)[0];

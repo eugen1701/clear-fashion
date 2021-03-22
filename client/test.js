@@ -1,17 +1,5 @@
-something = [
-    {
-        brand:"Gucci",
-        price:999,
-        location:"Paris",
-    }
-]
+let noMere = 3;
 
-console.log(typeof something[0].brand)
+var s = `ana are ${noMere} mere`;
 
-console.log(typeof something[0].price)
-var test = something[0];
-delete test.brand;
-console.log(test);
-console.log(something[0])
-console.log(something)
-
+console.log(s);
