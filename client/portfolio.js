@@ -75,19 +75,43 @@ const apply_filters = ([...array], all_filters = filters, get_filter = x => x.cu
  * @param  {Number}  [size=12] - size of the page
  * @return {Object}
  */
+// const fetchProducts = async (page = 1, size = 12) => {
+//     try {
+//         const response = await fetch(
+//             `https://clear-fashion-api.vercel.app?page=${page}&size=${size}`
+//         );
+//         const body = await response.json();
+
+//         if (body.success !== true) {
+//             console.error(body);
+//             return {currentProducts, currentPagination};
+//         }
+
+//         return body.data;
+//     } catch (error) {
+//         console.error(error);
+//         return {currentProducts, currentPagination};
+//     }
+// };
+
 const fetchProducts = async (page = 1, size = 12) => {
     try {
         const response = await fetch(
-            `https://clear-fashion-api.vercel.app?page=${page}&size=${size}`
+            `https://server-ten-ashy.vercel.app/products/search?limit=${size*page}`
         );
         const body = await response.json();
-
-        if (body.success !== true) {
-            console.error(body);
-            return {currentProducts, currentPagination};
-        }
-
-        return body.data;
+        const total = body.TotalNumberOfProducts;  
+        console.log(body);
+        //if (body.success !== true) {
+        //    console.error(body);
+        //    return {currentProducts, currentPagination};
+        //}
+        
+        const result = body.results.slice(-size);
+        const pageCount = Math.ceil(total / size);
+        page = page > pageCount ? pageCount : page;
+        const meta = {'currentPage': page, 'pageCount': pageCount, 'pageSize': size, 'count': total};
+        return {result, meta};
     } catch (error) {
         console.error(error);
         return {currentProducts, currentPagination};
