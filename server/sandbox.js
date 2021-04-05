@@ -5,11 +5,10 @@ async function sandbox (eshop) {
   try {
     console.log(`🕵️‍♀️  browsing ${eshop} source`);
 
-    const products = await dedicatedbrand.getPages(eshop);//i asume there we
-    //get the html response
+    const products = await dedicatedbrand.getPages(eshop);
     products.forEach((item, i) => {
       const prod = dedicatedbrand.scrape(item).then(console.log);
-
+      console.log(prod);
     });
 
     console.log(products);

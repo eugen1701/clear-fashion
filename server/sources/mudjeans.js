@@ -14,8 +14,9 @@ function parse(html_DOC){
 
 function getPage(url = MUD_WOOMEN){
   request(url, (error, response, html) => {
+    console.log(response.statusCode);
     if(!error && response.statusCode >= 200){//why do I get a 403 status code?
-      // console.log(html);//but i still get an html
+       //console.log(html);//but i still get an html
       parse(html);
     }//like, 403 is forbidden but i still get some data
   });

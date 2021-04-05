@@ -15,7 +15,7 @@ app.use(helmet());
 app.options('*', cors());
 
 app.get('/', (request, response) => {
-  response.send({'ack': true});
+  response.send([{'ack': true},{'merge':'ticule'}]);
 });
 
 app.listen(PORT);

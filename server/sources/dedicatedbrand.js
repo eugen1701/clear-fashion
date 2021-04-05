@@ -22,8 +22,12 @@ const parse = data => {
           .find('.productList-price')
           .text()
       );
+      const link = $(element)
+      .find('.productList-link')
+      .attr('href');
 
-      return {name, price};
+
+      return {name, price, link};
     })
     .get();//why?
 };//aparently this get is about jQueries
